@@ -61,7 +61,7 @@ Follow these steps to install and run the project locally:
 ## Screenshots
 
 ### Dashboard
-![Dashboard Screenshot](https://via.placeholder.com/800x400?text=Dashboard)
+![Dashboard Screenshot]!(https://github.com/user-attachments/assets/90f0590d-1e81-4ca7-a4ff-b7fa605d9f1e)
 
 ---
 
@@ -108,5 +108,3 @@ We welcome contributions! Please follow these steps:
    - Passwords are hashed for secure storage.
 6. **Notification System**:
    - Daily notification system.
-
-Let us know if you have any questions or need further assistance!
