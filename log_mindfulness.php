@@ -17,8 +17,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user_id) {
 
         if ($stmt->execute()) {
             $message = "✅ Mindfulness activity logged successfully!";
+            header("Location: index.php?message=" . urlencode($message));
         } else {
             $message = "❌ Database error: " . $stmt->error;
+            header("Location: index.php?message=" . urlencode($message));
         }
     } else {
         $message = "❌ Please provide valid activity type and duration.";

@@ -257,8 +257,8 @@ $weekly_data['water'][] = $data['total'] ?? 0;
 
     <div class="container mb-5">
 
-        <?php if (!empty($message)): ?>
-            <div class="alert alert-info"><?= $message ?></div>
+        <?php if (!empty($message) || isset($_GET['message'])): ?>
+            <div class="alert alert-info"><?= $message ?? $_GET['message'] ?></div>
         <?php endif; ?>
 
         <!-- First Row of Charts -->

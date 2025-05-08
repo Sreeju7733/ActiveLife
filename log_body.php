@@ -15,6 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     if ($stmt->execute()) {
         $message = "✅ Logged: Successfully!";
+        header("Location: index.php?message=" . urlencode($message));
     } else {
         echo "Error: " . $conn->error;
     }

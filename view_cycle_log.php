@@ -23,27 +23,19 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
-$cycle_dates = [];
-$durations = [];
-$flow_levels = [];
-$moods = [];
-
-$stmt->execute();
-$result = $stmt->get_result();
 $data_rows = [];
 
-while ($row = $result->fetch_assoc()) {
-    $cycle_dates[] = $row['cycle_start_date'];
-    $durations[] = (int)$row['duration_days'];
-    $flow_levels[] = $row['flow_level'];
-    $moods[] = $row['mood'];
+foreach ($result as $row) {
     $data_rows[] = $row;
 }
 
-// Calculate flow level counts
+$cycle_dates = array_column($data_rows, 'cycle_start_date');
+$durations = array_map(fn($r) => (int)$r['duration_days'], $data_rows);
+$flow_levels = array_column($data_rows, 'flow_level');
+$moods = array_column($data_rows, 'mood');
+
 $flow_counts = array_count_values($flow_levels);
 $mood_counts = array_count_values($moods);
-
 ?>
 
 <!DOCTYPE html>
@@ -63,7 +55,7 @@ $mood_counts = array_count_values($moods);
         .mood-neutral { background-color: #FFC107; }
         .mood-bad { background-color: #FF9800; }
         .mood-very_bad { background-color: #F44336; }
-        
+
         .flow-badge {
             font-size: 0.8rem;
             padding: 0.35em 0.65em;
@@ -71,7 +63,7 @@ $mood_counts = array_count_values($moods);
         .flow-light { background-color: #E1BEE7; color: #000; }
         .flow-medium { background-color: #BA68C8; color: #fff; }
         .flow-heavy { background-color: #9C27B0; color: #fff; }
-        
+
         .table-responsive {
             border-radius: 10px;
             overflow: hidden;
@@ -87,22 +79,21 @@ $mood_counts = array_count_values($moods);
         </div>
 
         <div class="row mb-5">
-    <div class="col-md-6">
-        <h5 class="text-center">Cycle Duration Trend</h5>
-        <canvas id="durationChart"></canvas>
-    </div>
-    <div class="col-md-3">
-        <h5 class="text-center">Flow Level Breakdown</h5>
-        <canvas id="flowChart"></canvas>
-    </div>
-    <div class="col-md-3">
-        <h5 class="text-center">Mood Distribution</h5>
-        <canvas id="moodChart"></canvas>
-    </div>
-</div>
+            <div class="col-md-6">
+                <h5 class="text-center">Cycle Duration Trend</h5>
+                <canvas id="durationChart"></canvas>
+            </div>
+            <div class="col-md-3">
+                <h5 class="text-center">Flow Level Breakdown</h5>
+                <canvas id="flowChart"></canvas>
+            </div>
+            <div class="col-md-3">
+                <h5 class="text-center">Mood Distribution</h5>
+                <canvas id="moodChart"></canvas>
+            </div>
+        </div>
 
-
-        <?php if ($result->num_rows > 0): ?>
+        <?php if (count($data_rows) > 0): ?>
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
@@ -117,7 +108,7 @@ $mood_counts = array_count_values($moods);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $result->fetch_assoc()): ?>
+                        <?php foreach ($data_rows as $row): ?>
                             <tr>
                                 <td>
                                     <strong><?= htmlspecialchars($row['cycle_start_date']) ?></strong>
@@ -166,7 +157,7 @@ $mood_counts = array_count_values($moods);
                                     <?php endif; ?>
                                 </td>
                             </tr>
-                        <?php endwhile; ?>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
@@ -182,71 +173,67 @@ $mood_counts = array_count_values($moods);
             <a href="dashboard.php" class="btn btn-outline-secondary">← Back to Dashboard</a>
         </div>
     </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const cycleDates = <?= json_encode($cycle_dates) ?>;
-    const durations = <?= json_encode($durations) ?>;
-    const flowCounts = <?= json_encode($flow_counts) ?>;
-    const moodCounts = <?= json_encode($mood_counts) ?>;
 
-    // Duration Trend Chart
-    new Chart(document.getElementById('durationChart'), {
-        type: 'line',
-        data: {
-            labels: cycleDates,
-            datasets: [{
-                label: 'Duration (days)',
-                data: durations,
-                borderColor: '#0d6efd',
-                backgroundColor: 'rgba(13, 110, 253, 0.2)',
-                fill: true,
-                tension: 0.3
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: { y: { beginAtZero: true } }
-        }
-    });
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const cycleDates = <?= json_encode($cycle_dates) ?>;
+        const durations = <?= json_encode($durations) ?>;
+        const flowCounts = <?= json_encode($flow_counts) ?>;
+        const moodCounts = <?= json_encode($mood_counts) ?>;
 
-    // Flow Level Chart
-    new Chart(document.getElementById('flowChart'), {
-        type: 'bar',
-        data: {
-            labels: Object.keys(flowCounts),
-            datasets: [{
-                label: 'Flow Level Count',
-                data: Object.values(flowCounts),
-                backgroundColor: ['#E1BEE7', '#BA68C8', '#9C27B0'],
-                borderColor: '#000',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            indexAxis: 'y',
-            scales: { x: { beginAtZero: true } }
-        }
-    });
+        new Chart(document.getElementById('durationChart'), {
+            type: 'line',
+            data: {
+                labels: cycleDates,
+                datasets: [{
+                    label: 'Duration (days)',
+                    data: durations,
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
 
-    // Mood Distribution Pie Chart
-    new Chart(document.getElementById('moodChart'), {
-        type: 'pie',
-        data: {
-            labels: Object.keys(moodCounts).map(m => m.replace('_', ' ')),
-            datasets: [{
-                label: 'Mood Distribution',
-                data: Object.values(moodCounts),
-                backgroundColor: [
-                    '#4CAF50', '#8BC34A', '#FFC107', '#FF9800', '#F44336'
-                ]
-            }]
-        },
-        options: {
-            responsive: true
-        }
-    });
-</script>
+        new Chart(document.getElementById('flowChart'), {
+            type: 'bar',
+            data: {
+                labels: Object.keys(flowCounts),
+                datasets: [{
+                    label: 'Flow Level Count',
+                    data: Object.values(flowCounts),
+                    backgroundColor: ['#E1BEE7', '#BA68C8', '#9C27B0'],
+                    borderColor: '#000',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                indexAxis: 'y',
+                scales: { x: { beginAtZero: true } }
+            }
+        });
+
+        new Chart(document.getElementById('moodChart'), {
+            type: 'pie',
+            data: {
+                labels: Object.keys(moodCounts).map(m => m.replace('_', ' ')),
+                datasets: [{
+                    label: 'Mood Distribution',
+                    data: Object.values(moodCounts),
+                    backgroundColor: ['#4CAF50', '#8BC34A', '#FFC107', '#FF9800', '#F44336']
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

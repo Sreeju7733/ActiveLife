@@ -41,6 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($stmt->execute()) {
         $message = "✅ Cycle logged successfully!";
+        header("Location: index.php?message=" . urlencode($message));
     } else {
         $error = "Error: " . $conn->error;
     }

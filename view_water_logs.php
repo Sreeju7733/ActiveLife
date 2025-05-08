@@ -14,12 +14,13 @@ $result = $conn->query($sql);
 
 $dates = [];
 $water_intakes = [];
+$logs = [];
 
 while ($row = $result->fetch_assoc()) {
     $dates[] = $row['log_date'];
     $water_intakes[] = (int)$row['water_intake'];
+    $logs[] = $row; // Store for later use in table
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -33,14 +34,15 @@ while ($row = $result->fetch_assoc()) {
 <body class="bg-light">
     <div class="container my-5">
         <h2 class="text-center mb-4">Your Water Intake Logs</h2>
-<div class="row mb-5">
-    <div class="col-9">
-        <h5 class="text-center">Water Intake Over Time</h5>
-        <canvas id="waterIntakeChart"></canvas>
-    </div>
-</div>
 
-        <?php if ($result->num_rows > 0): ?>
+        <div class="row mb-5 justify-content-center">
+            <div class="col-md-9">
+                <h5 class="text-center mb-3">Water Intake Over Time</h5>
+                <canvas id="waterIntakeChart"></canvas>
+            </div>
+        </div>
+
+        <?php if (count($logs) > 0): ?>
             <div class="table-responsive">
                 <table class="table table-bordered table-striped">
                     <thead class="table-dark">
@@ -50,12 +52,12 @@ while ($row = $result->fetch_assoc()) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $result->fetch_assoc()): ?>
+                        <?php foreach ($logs as $row): ?>
                             <tr>
                                 <td><?= htmlspecialchars($row['water_intake']) ?> ml</td>
                                 <td><?= htmlspecialchars($row['log_date']) ?></td>
                             </tr>
-                        <?php endwhile; ?>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
@@ -67,38 +69,45 @@ while ($row = $result->fetch_assoc()) {
             <a href="dashboard.php" class="btn btn-secondary">⬅ Back to Dashboard</a>
         </div>
     </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const logDates = <?= json_encode(array_reverse($dates)) ?>;
-    const waterIntakes = <?= json_encode(array_reverse($water_intakes)) ?>;
 
-    new Chart(document.getElementById('waterIntakeChart'), {
-        type: 'line',
-        data: {
-            labels: logDates,
-            datasets: [{
-                label: 'Water Intake (ml)',
-                data: waterIntakes,
-                borderColor: '#0D6EFD',
-                backgroundColor: 'rgba(13, 110, 253, 0.2)',
-                fill: true,
-                tension: 0.3
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Water Intake (ml)'
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const logDates = <?= json_encode(array_reverse($dates)) ?>;
+        const waterIntakes = <?= json_encode(array_reverse($water_intakes)) ?>;
+
+        new Chart(document.getElementById('waterIntakeChart'), {
+            type: 'line',
+            data: {
+                labels: logDates,
+                datasets: [{
+                    label: 'Water Intake (ml)',
+                    data: waterIntakes,
+                    borderColor: '#0D6EFD',
+                    backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Water Intake (ml)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
                     }
                 }
             }
-        }
-    });
-</script>
+        });
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

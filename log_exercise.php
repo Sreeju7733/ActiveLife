@@ -2,24 +2,29 @@
 include 'auth.php';  // Ensure the user is authenticated
 include 'db/conn.php';  // Database connection
 
-// Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $exercise_type = $_POST['exercise_type'];
-    $calories_burned = $_POST['calories_burned'];
+    $exercise_type = trim($_POST['exercise_type'] ?? '');
+    $calories_burned = (int)($_POST['calories_burned'] ?? 0);
+    $user_id = $_SESSION['user_id'] ?? null;
 
-    $user_id = $_SESSION['user_id'];
+    if ($user_id && $exercise_type && $calories_burned > 0) {
+        // Use prepared statement to prevent SQL injection
+        $stmt = $conn->prepare("INSERT INTO exercise_log (user_id, exercise_type, calories_burned, log_date) VALUES (?, ?, ?, CURRENT_DATE)");
+        $stmt->bind_param("isi", $user_id, $exercise_type, $calories_burned);
 
-    // Use prepared statement to prevent SQL injection
-    $stmt = $conn->prepare("INSERT INTO exercise_log (user_id, exercise_type, calories_burned, log_date) VALUES (?, ?, ?, CURRENT_DATE)");
-    $stmt->bind_param("ssi", $user_id, $exercise_type, $calories_burned);
-
-    if ($stmt->execute()) {
-        $message = "✅ Logged: Successfully!";
+        if ($stmt->execute()) {
+            $message = "✅ Logged: Successfully!";
+            header("Location: index.php?message=" . urlencode($message));
+            exit;
+        } else {
+            $error = "❌ Error logging exercise: " . $stmt->error;
+        }
     } else {
-        echo "Error logging exercise: " . $conn->error;
+        $error = "❌ Invalid input. Please fill all fields.";
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

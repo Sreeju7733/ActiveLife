@@ -20,8 +20,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->bind_param("ii", $user_id, $water_intake);
 
         if ($stmt->execute()) {
-            $message = "✅ Water intake logged successfully.";
-        } else {
+            $message = "✅ Water intake logged successfully.";            $message = "✅ Logged: $sleep_duration hours, Quality: $sleep_quality";
+            header("Location: index.php?message=" . urlencode($message)); // Redirect to avoid resubmissio        } else {
             $message = "❌ Database error.";
         }
     }

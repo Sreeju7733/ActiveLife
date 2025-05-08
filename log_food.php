@@ -18,6 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $user_id) {
 
         if ($stmt->execute()) {
             $message = "✅ Logged: $food ($calories kcal)";
+            header("Location: index.php?message=" . urlencode($message)); // Redirect to avoid resubmission
             exit();
         } else {
             $message = "❌ DB error: " . $stmt->error;

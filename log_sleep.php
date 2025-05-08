@@ -17,7 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user_id) {
         $stmt->bind_param("idss", $user_id, $sleep_duration, $sleep_quality, $log_date);
 
         if ($stmt->execute()) {
-            $message = "✅ Sleep data logged successfully!";
+            $message = "✅ Logged: $sleep_duration hours, Quality: $sleep_quality";
+            header("Location: index.php?message=" . urlencode($message)); // Redirect to avoid resubmission
+            exit();
         } else {
             $message = "❌ Error: " . $stmt->error;
         }

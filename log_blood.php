@@ -25,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Execute statement and check for success
     if ($stmt->execute()) {
         $message = "Blood pressure and glucose data logged successfully!";
+        header("Location: index.php?message=" . urlencode($message));
     } else {
         $message = "Error logging data: " . $stmt->error;
     }
