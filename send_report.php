@@ -160,8 +160,8 @@ try {
     $mail->isSMTP();
     $mail->Host       = 'smtp.gmail.com'; // Set your SMTP server
     $mail->SMTPAuth   = true;
-    $mail->Username   = 'sree.gowtham.v@gmail.com'; // Your email
-    $mail->Password   = 'crdz gggj lbtf ulic';   // Your app password
+    $mail->Username   = ''; // Your email
+    $mail->Password   = '';   // Your app password
     $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port       = 587;
 
